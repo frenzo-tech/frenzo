@@ -1,0 +1,11 @@
+{
+  "name": "frenzo-render",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "puppeteer-core": "^23.0.0",
+    "sharp": "^0.33.0"
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "schema": "frenzo.project.v1",
+  "generatedAt": "2026-11-01T04:41:33.384Z",
+  "network": {
+    "chainId": 97,
+    "rpc": "https://bsc-testnet-rpc.publicnode.com",
+    "explorer": "https://testnet.bscscan.com"
+  },
+  "contracts": {
+    "core": "0x914CDb6a9eE76612a9D19075Eb0DDE6F49901384",
+    "nft": "0x6D4131Dd081791106E8Aa057237C7b8453d94669",
+    "token": "0x1b2B1062C653b29DDA7b97bdcE9159cB4E8f9991",
+    "registry": "0x59092aEE46B37d75A451003F2b8176DC0a6289fE",
+    "treasury": "0xed0118D76378049b1E3d12bA349D8C93AD527fB1"
+  },
+  "token": {
+    "symbol": "FRNZ",
+    "maxSupply": 100000000,
+    "totalMined": 237.82,
+    "circulating": 0,
+    "emissionPerDay": 91324,
+    "emissionYears": 3,
+    "emittedPct": 0.0002,
+    "premine": false
+  },
+  "mining": {
+    "miners": 12,
+    "totalFriendUnits": 28,
+    "totalKeyValueBnb": 0.00075,
+    "mintPriceBnb": 0.0003,
+    "mintGivesKeys": 2,
+    "pools": {
+      "friends": 0.3,
+      "keys": 0.7
+    }
+  },
+  "fees": {
+    "tradeBps": 10,
+    "creatorShareOfFeePct": 50,
+    "marketBps": 5,
+    "freeFriends": 10,
+    "friendFeeFrnz": 1,
+    "friendFeeBurned": true
+  },
+  "curve": {
+    "type": "friend.tech",
+    "k": 16000,
+    "points": [
+      {
+        "supply": 0,
+        "nextKeyBnb": 0
+      },
+      {
+        "supply": 1,
+        "nextKeyBnb": 0.000063
+      },
+      {
+        "supply": 2,
+        "nextKeyBnb": 0.00025
+      },
+      {
+        "supply": 3,
+        "nextKeyBnb": 0.000562
+      },
+      {
+        "supply": 5,
+        "nextKeyBnb": 0.001563
+      },
+      {
+        "supply": 10,
+        "nextKeyBnb": 0.00625
+      },
+      {
+        "supply": 20,
+        "nextKeyBnb": 0.025
+      },
+      {
+        "supply": 50,
+        "nextKeyBnb": 0.15625
+      },
+      {
+        "supply": 100,
+        "nextKeyBnb": 0.625
+      },
+      {
+        "supply": 200,
+        "nextKeyBnb": 2.5
+      }
+    ]
+  },
+  "governance": {
+    "owner": "0xd11fBA8048B8fCE0E1C29191639551d4E1009A13",
+    "renounced": false,
+    "treasuryIsMultisig": true
+  },
+  "liquidity": {
+    "hasDexPool": false,
+    "note": "主网尚未建池；FRNZ 无市场价格，UI 显示的产出一律按枚数计算"
+  },
+  "miners": [
+    {
+      "id": 4,
+      "handle": "nova4.ai",
+      "friends": 2,
+      "keys": 2,
+      "powerPct": 9.04,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 8256,
+      "ownerSharePct": 100,
+      "pendingFrnz": 18.87
+    },
+    {
+      "id": 5,
+      "handle": "vega5.ai",
+      "friends": 2,
+      "keys": 2,
+      "powerPct": 9.04,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 8256,
+      "ownerSharePct": 100,
+      "pendingFrnz": 16.4
+    },
+    {
+      "id": 6,
+      "handle": "lyra6.ai",
+      "friends": 2,
+      "keys": 2,
+      "powerPct": 9.04,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 8256,
+      "ownerSharePct": 100,
+      "pendingFrnz": 15.52
+    },
+    {
+      "id": 7,
+      "handle": "orion7.ai",
+      "friends": 2,
+      "keys": 2,
+      "powerPct": 9.04,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 8256,
+      "ownerSharePct": 100,
+      "pendingFrnz": 14.27
+    },
+    {
+      "id": 8,
+      "handle": "iris8.ai",
+      "friends": 2,
+      "keys": 2,
+      "powerPct": 9.04,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 8256,
+      "ownerSharePct": 100,
+      "pendingFrnz": 13.02
+    },
+    {
+      "id": 1,
+      "handle": "echo1.ai",
+      "friends": 1,
+      "keys": 2,
+      "powerPct": 7.97,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 7279,
+      "ownerSharePct": 100,
+      "pendingFrnz": 42.56
+    },
+    {
+      "id": 2,
+      "handle": "kite2.ai",
+      "friends": 1,
+      "keys": 2,
+      "powerPct": 7.97,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 7279,
+      "ownerSharePct": 100,
+      "pendingFrnz": 28.86
+    },
+    {
+      "id": 3,
+      "handle": "muse3.ai",
+      "friends": 1,
+      "keys": 2,
+      "powerPct": 7.97,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 7279,
+      "ownerSharePct": 100,
+      "pendingFrnz": 22.64
+    },
+    {
+      "id": 9,
+      "handle": "zeta9.ai",
+      "friends": 1,
+      "keys": 2,
+      "powerPct": 7.97,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 7279,
+      "ownerSharePct": 100,
+      "pendingFrnz": 9.33
+    },
+    {
+      "id": 10,
+      "handle": "flux10.ai",
+      "friends": 1,
+      "keys": 2,
+      "powerPct": 7.97,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 7279,
+      "ownerSharePct": 100,
+      "pendingFrnz": 9.21
+    },
+    {
+      "id": 11,
+      "handle": "halo11.ai",
+      "friends": 1,
+      "keys": 2,
+      "powerPct": 7.97,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 7279,
+      "ownerSharePct": 100,
+      "pendingFrnz": 8.01
+    },
+    {
+      "id": 12,
+      "handle": "juno12.ai",
+      "friends": 0,
+      "keys": 2,
+      "powerPct": 6.9,
+      "keyPriceBnb": 0.00025,
+      "estDailyFrnz": 6301,
+      "ownerSharePct": 100,
+      "pendingFrnz": 0
+    }
+  ],
+  "simulation": {
+    "scenario": "新用户铸造 1 台 + 加 10 个好友（免费额度内）",
+    "costBnb": 0.0003,
+    "resultingPowerPct": 13.85,
+    "estDailyFrnz": 12645,
+    "note": "权重随全网矿机数与好友数变化，这是按当前快照的一次性推算"
+  },
+  "warnings": [
+    "测试网数据，主网经济参数将以部署时为准",
+    "FRNZ 目前没有 DEX 池，任何 FRNZ 金额都只是枚数，换算不成价格",
+    "好友关系无女巫防护，同一人可用多钱包互加刷权重",
+    "所有权尚未放弃，owner 仍可修改 treasury / registry / 元数据域名"
+  ]
+}

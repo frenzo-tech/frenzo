@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FRENZO 国库多签</title>
+<style>
+  :root{
+    --bg:#08090c; --card:#0e1117; --line:#1c2028; --txt:#e8edf6; --dim:#8b94a6; --dim2:#5f6a7c;
+    --violet:#7c5cff; --green:#22c55e; --red:#ff4d6d; --amber:#ffc247;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",sans-serif}
+  .wrap{max-width:820px;margin:0 auto;padding:20px 16px 60px}
+  h1{font-size:19px;margin:0 0 4px;letter-spacing:.5px}
+  .sub{font-size:12px;color:var(--dim2);margin-bottom:18px;font-family:ui-monospace,monospace}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px;
+    font-family:ui-monospace,monospace;border-bottom:1px solid rgba(255,255,255,.04)}
+  .row:last-child{border-bottom:0}
+  .k{color:var(--dim2)}
+  .v{color:var(--txt);font-weight:600;word-break:break-all;text-align:right}
+  button{font:600 13px ui-monospace,monospace;border:0;border-radius:9px;padding:10px 16px;cursor:pointer;
+    background:var(--violet);color:#fff;transition:.15s}
+  button:hover{opacity:.88}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--dim)}
+  button.green{background:var(--green)}
+  button.red{background:rgba(255,77,109,.15);color:var(--red);border:1px solid rgba(255,77,109,.3)}
+  button.sm{padding:6px 12px;font-size:12px;border-radius:7px}
+  input{width:100%;background:#0a0d14;border:1px solid var(--line);border-radius:9px;padding:11px 13px;
+    color:var(--txt);font:13px ui-monospace,monospace;margin-bottom:9px}
+  input::placeholder{color:var(--dim2)}
+  label{display:block;font-size:11px;color:var(--dim2);margin-bottom:5px;font-family:ui-monospace,monospace}
+  .tx{background:#0a0d14;border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:10px}
+  .tx .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .badge{font:600 10px ui-monospace,monospace;padding:3px 8px;border-radius:6px}
+  .badge.ready{background:rgba(34,197,94,.15);color:var(--green)}
+  .badge.wait{background:rgba(255,194,71,.13);color:var(--amber)}
+  .badge.done{background:rgba(255,255,255,.06);color:var(--dim2)}
+  .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:rgba(18,21,27,.97);
+    border:1px solid rgba(124,92,255,.45);padding:11px 20px;border-radius:10px;font:12px ui-monospace,monospace;
+    z-index:99;max-width:88vw;text-align:center;backdrop-filter:blur(14px)}
+  .toast.err{border-color:rgba(255,77,109,.5);color:#ffd9e0}
+  .warn{background:rgba(255,194,71,.08);border:1px solid rgba(255,194,71,.25);border-radius:10px;
+    padding:12px 14px;font-size:12.5px;color:#ffe3a3;margin-bottom:14px;line-height:1.7}
+  .dim{color:var(--dim2);font-size:11.5px;font-family:ui-monospace,monospace}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>FRENZO 国库多签</h1>
+  <div class="sub" id="netInfo">未连接</div>
+
+  <div class="warn hidden" id="helpBox"></div>
+
+  <div class="card">
+    <div class="row"><span class="k">多签地址</span><span class="v" id="msAddr">—</span></div>
+    <div class="row"><span class="k">国库余额</span><span class="v" id="msBal">—</span></div>
+    <div class="row"><span class="k">执行规则</span><span class="v" id="msRule">—</span></div>
+    <div class="row"><span class="k">FRNZ 余额</span><span class="v" id="msFrnz">—</span></div>
+    <div class="row"><span class="k">我的地址</span><span class="v" id="myAddr">—</span></div>
+    <div class="row"><span class="k">我的身份</span><span class="v" id="myRole">—</span></div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button id="btnConnect">连接钱包</button>
+      <button class="ghost" id="btnRefresh">刷新</button>
+    </div>
+  </div>
+
+  <div class="card" id="pendingCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <b style="font-size:14px">待执行交易</b>
+      <span class="dim" id="txCount">0</span>
+    </div>
+    <div id="txList"><div class="dim">连接钱包后显示</div></div>
+  </div>
+
+  <div class="card hidden" id="newTxCard">
+    <b style="font-size:14px;display:block;margin-bottom:12px">发起转账</b>
+    <label>收款地址</label>
+    <input id="toAddr" placeholder="0x..." autocomplete="off">
+    <label>金额（BNB）</label>
+    <input id="amt" placeholder="0.01" autocomplete="off" inputmode="decimal">
+    <button class="green" id="btnSubmit">提交（需再 1 人确认）</button>
+  </div>
+
+  <div class="card hidden" id="replaceCard">
+    <b style="font-size:14px;display:block;margin-bottom:12px">更换 owner</b>
+    <div class="dim" style="margin-bottom:10px">丢钥匙时用这个：提交一笔调用自身 replaceOwner 的交易</div>
+    <label>旧 owner 地址</label>
+    <input id="oldOwner" placeholder="0x..." autocomplete="off">
+    <label>新 owner 地址</label>
+    <input id="newOwner" placeholder="0x..." autocomplete="off">
+    <button id="btnReplace">提交更换</button>
+  </div>
+
+  <div class="card hidden" id="tokenCard">
+    <b style="font-size:14px;display:block;margin-bottom:6px">转 BEP20 代币</b>
+    <div class="dim" style="margin-bottom:12px">任何 BEP20 标准代币都可以转出</div>
+    <label>代币合约地址</label>
+    <input id="tkAddr" placeholder="0x..." autocomplete="off">
+    <label>收款地址</label>
+    <input id="tkTo" placeholder="0x..." autocomplete="off">
+    <label>数量</label>
+    <input id="tkAmt" placeholder="100" autocomplete="off" inputmode="decimal">
+    <div id="tkInfo" class="dim" style="margin-bottom:10px"></div>
+    <button class="green" id="btnToken">提交转账</button>
+  </div>
+
+  <div class="card hidden" id="nftCard">
+    <b style="font-size:14px;display:block;margin-bottom:6px">转 NFT</b>
+    <div class="dim" style="margin-bottom:12px">ERC721 / ERC1155 均可（多签已实现接收钩子）</div>
+    <label>NFT 合约地址</label>
+    <input id="nftAddr" placeholder="0x..." autocomplete="off">
+    <label>Token ID</label>
+    <input id="nftId" placeholder="1" autocomplete="off" inputmode="numeric">
+    <label>收款地址</label>
+    <input id="nftTo" placeholder="0x..." autocomplete="off">
+    <button class="green" id="btnNft">提交转移</button>
+  </div>
+
+  <div class="card hidden" id="rawCard">
+    <b style="font-size:14px;display:block;margin-bottom:6px">高级：调用任意合约</b>
+    <div class="dim" style="margin-bottom:12px">直接构造 calldata，适合质押、投票、授权等操作</div>
+    <label>目标合约</label>
+    <input id="rawTo" placeholder="0x..." autocomplete="off">
+    <label>附带 BNB（一般填 0）</label>
+    <input id="rawValue" placeholder="0" autocomplete="off" inputmode="decimal">
+    <label>Calldata（0x 开头）</label>
+    <input id="rawData" placeholder="0xa9059cbb..." autocomplete="off">
+    <button class="green" id="btnRaw">提交调用</button>
+  </div>
+
+  <div class="dim" style="text-align:center;margin-top:22px">
+    所有签名都在你的钱包里完成，本站不接触任何私钥
+  </div>
+</div>
+
+<script src="../vendor/ethers.umd.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var MS = '__MS_ADDR__';
+  var FRNZ = '__FRNZ_ADDR__';
+  var CHAIN = __CHAIN_ID__;
+  var RPC = '__RPC__';
+
+  var MS_ABI = [
+    'function info() view returns (address[] o,uint256 req,uint256 count,uint256 balance,uint256 txNum)',
+    'function getOwners() view returns (address[])',
+    'function getConfirmations(uint256) view returns (address[])',
+    'function liveConfirmations(uint256) view returns (uint256)',
+    'function txs(uint256) view returns (address to,uint256 value,bytes data,bool executed,uint256 confirmations,uint256 proposedAt)',
+    'function txExecuted(uint256) view returns (bool)',
+    'function isOwner(address) view returns (bool)',
+    'function required() view returns (uint256)',
+    'function ownerCount() view returns (uint256)',
+    'function getBalance() view returns (uint256)',
+    'function confirmed(uint256,address) view returns (bool)',
+    'function submit(address to,uint256 value,bytes data) returns (uint256)',
+    'function confirm(uint256 txId)',
+    'function revoke(uint256 txId)',
+    'function execute(uint256 txId)',
+    'function replaceOwner(address oldOwner,address newOwner)',
+    'function onERC721Received(address,address,uint256,bytes) returns (bytes4)'
+  ];
+
+  var provider, signer, me, read, readSigner;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function toast(msg, isErr) {
+    var d = document.createElement('div');
+    d.className = 'toast' + (isErr ? ' err' : '');
+    d.textContent = msg;
+    document.body.appendChild(d);
+    setTimeout(function () { d.style.transition = '.3s'; d.style.opacity = '0'; }, 3200);
+    setTimeout(function () { d.remove(); }, 3600);
+  }
+
+  function short(a) { return a ? a.slice(0, 6) + '…' + a.slice(-4) : '—'; }
+  function fmt(x) { return Number(ethers.formatEther(x)).toFixed(6); }
+
+  // ── 只读 provider（不需要钱包也能看）──
+  function initRead() {
+    var rp = new ethers.JsonRpcProvider(RPC, undefined, { staticNetwork: true });
+    read = new ethers.Contract(MS, MS_ABI, rp);
+    $('msAddr').textContent = short(MS);
+  }
+
+  // ── 钱包连接 ──
+  async function connect() {
+    var eth = window.ethereum;
+    if (!eth) {
+      toast('没有检测到钱包。请在币安 App 的「DApp 浏览器」里打开本页', true);
+      showHelp();
+      return;
+    }
+    try {
+      provider = new ethers.BrowserProvider(eth);
+      await provider.send('eth_requestAccounts', []);
+      var net = await provider.getNetwork();
+      if (Number(net.chainId) !== CHAIN) {
+        try {
+          await eth.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x' + CHAIN.toString(16) }],
+          });
+        } catch (e) {
+          toast('请手动切换到 chainId ' + CHAIN, true);
+          return;
+        }
+      }
+      signer = await provider.getSigner();
+      me = await signer.getAddress();
+      readSigner = new ethers.Contract(MS, MS_ABI, signer);
+      $('myAddr').textContent = short(me);
+      $('btnConnect').textContent = '已连接';
+      $('btnConnect').disabled = true;
+      await refresh();
+    } catch (e) {
+      toast('连接失败：' + (e.shortMessage || e.message || '').slice(0, 80), true);
+    }
+  }
+
+  function showHelp() {
+    var box = $('helpBox');
+    box.classList.remove('hidden');
+    box.innerHTML = '<b>怎么打开这个页面</b><br>' +
+      '① 手机币安 App → 底部「钱包」→ 右上角「DApp / 浏览器」<br>' +
+      '② 地址栏输入 <b>frenzo.tech/ms/</b> 打开<br>' +
+      '③ 点「连接钱包」，选你要用的那个 owner 地址<br>' +
+      '④ 用另外两个 owner 各打开一次，分别点「确认」<br><br>' +
+      '<span style="opacity:.75">MPC 钱包没有可导出的私钥，所以只能在钱包 App 里签名。' +
+      '命令行工具 scripts/ms.js 对这类钱包无效。</span>';
+  }
+
+  // ── 刷新状态 ──
+  async function refresh() {
+    try {
+      var info = await read.info();
+      var owners = info[0], req = info[1], cnt = info[2], bal = info[3], txNum = info[4];
+
+      $('msBal').textContent = fmt(bal) + ' BNB';
+      $('msRule').textContent = req + '-of-' + cnt;
+
+      // FRNZ 余额（BEP20 代表）
+      try {
+        var erc20 = new ethers.Contract(FRNZ, [
+          'function balanceOf(address) view returns (uint256)',
+          'function symbol() view returns (string)'
+        ], new ethers.JsonRpcProvider(RPC, undefined, { staticNetwork: true }));
+        var fb = await erc20.balanceOf(MS);
+        $('msFrnz').textContent = Number(ethers.formatEther(fb)).toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } catch (e) { $('msFrnz').textContent = '—'; }
+      $('txCount').textContent = txNum + ' 笔';
+
+      var isOwner = false;
+      if (me) {
+        isOwner = await read.isOwner(me);
+        $('myRole').textContent = isOwner ? 'owner ✓' : '不是 owner';
+        $('myRole').style.color = isOwner ? 'var(--green)' : 'var(--red)';
+        $('newTxCard').classList.toggle('hidden', !isOwner);
+        $('replaceCard').classList.toggle('hidden', !isOwner);
+        $('tokenCard').classList.toggle('hidden', !isOwner);
+        $('nftCard').classList.toggle('hidden', !isOwner);
+        $('rawCard').classList.toggle('hidden', !isOwner);
+      } else {
+        $('myRole').textContent = '未连接';
+      }
+
+      // 交易列表
+      var list = $('txList');
+      var html = '';
+      var pending = 0;
+      for (var id = 0; id < Number(txNum); id++) {
+        var t = await read.txs(id);
+        var executed = t[3];
+        var live = 0;
+        try { live = Number(await read.liveConfirmations(id)); } catch (e) { live = Number(t[4]); }
+        if (executed) continue;
+        pending++;
+
+        var mine = me ? await read.confirmed(id, me) : false;
+        var ready = live >= Number(req);
+        var isSelf = t[0].toLowerCase() === MS.toLowerCase();
+
+        html += '<div class="tx">' +
+          '<div class="h"><b>#' + id + (isSelf ? ' · 管理操作' : '') + '</b>' +
+          '<span class="badge ' + (ready ? 'ready' : 'wait') + '">' + live + '/' + req + ' 票</span></div>' +
+          '<div class="dim">→ ' + t[0] + '</div>' +
+          '<div class="dim">金额 ' + fmt(t[1]) + ' BNB</div>' +
+          '<div class="acts">';
+
+        if (isOwner) {
+          if (!ready) {
+            html += mine
+              ? '<button class="sm ghost" data-act="revoke" data-id="' + id + '">撤销确认</button>'
+              : '<button class="sm" data-act="confirm" data-id="' + id + '">确认</button>';
+          } else {
+            html += '<button class="sm green" data-act="execute" data-id="' + id + '">执行</button>';
+          }
+        }
+        html += '</div></div>';
+      }
+
+      list.innerHTML = pending ? html : '<div class="dim">没有待执行交易</div>';
+
+      list.querySelectorAll('[data-act]').forEach(function (b) {
+        b.onclick = function () { doAct(b.dataset.act, Number(b.dataset.id), b); };
+      });
+    } catch (e) {
+      toast('读取失败：' + (e.shortMessage || e.message || '').slice(0, 80), true);
+    }
+  }
+
+  async function doAct(act, id, btn) {
+    if (!signer) { toast('先连接钱包', true); return; }
+    btn.disabled = true;
+    try {
+      var tx;
+      if (act === 'confirm') tx = await readSigner.confirm(id, { gasLimit: 300000 });
+      else if (act === 'revoke') tx = await readSigner.revoke(id, { gasLimit: 300000 });
+      else if (act === 'execute') tx = await readSigner.execute(id, { gasLimit: 700000 });
+      toast('已提交，等待确认…');
+      await tx.wait();
+      toast('完成');
+      await refresh();
+    } catch (e) {
+      toast('失败：' + (e.shortMessage || e.message || '').slice(0, 100), true);
+      btn.disabled = false;
+    }
+  }
+
+  // ── 发起转账 ──
+  function bindSubmit() {
+    $('btnSubmit').onclick = async function () {
+      if (!signer) { toast('先连接钱包', true); return; }
+      var to = $('toAddr').value.trim();
+      var amt = $('amt').value.trim();
+      if (!ethers.isAddress(to)) { toast('收款地址不合法', true); return; }
+      if (!amt || Number(amt) <= 0) { toast('金额不合法', true); return; }
+      this.disabled = true;
+      try {
+        var value = ethers.parseEther(amt);
+        var tx = await readSigner.submit(to, value, '0x', { gasLimit: 700000 });
+        toast('已提交，等待确认…');
+        await tx.wait();
+        toast('提案已创建，还需要 1 位 owner 确认');
+        $('toAddr').value = ''; $('amt').value = '';
+        await refresh();
+      } catch (e) {
+        toast('失败：' + (e.shortMessage || e.message || '').slice(0, 100), true);
+      }
+      this.disabled = false;
+    };
+
+    // ── BEP20 转账 ──
+    $('btnToken').onclick = async function () {
+      if (!signer) { toast('先连接钱包', true); return; }
+      var tk = $('tkAddr').value.trim(), to = $('tkTo').value.trim(), amt = $('tkAmt').value.trim();
+      if (!ethers.isAddress(tk)) { toast('代币地址不合法', true); return; }
+      if (!ethers.isAddress(to)) { toast('收款地址不合法', true); return; }
+      if (!amt || Number(amt) <= 0) { toast('数量不合法', true); return; }
+      this.disabled = true;
+      try {
+        var c = new ethers.Contract(tk, [
+          'function transfer(address,uint256) returns (bool)',
+          'function decimals() view returns (uint8)'
+        ], signer);
+        var dec = 18;
+        try { dec = Number(await c.decimals()); } catch (e) {}
+        var data = c.interface.encodeFunctionData('transfer', [to, ethers.parseUnits(amt, dec)]);
+        var tx = await readSigner.submit(tk, 0, data, { gasLimit: 700000 });
+        toast('已提交，等待确认…');
+        await tx.wait();
+        toast('代币转账提案已创建，还需 1 位 owner 确认');
+        $('tkTo').value = ''; $('tkAmt').value = '';
+        await refresh();
+      } catch (e) { toast('失败：' + (e.shortMessage || e.message || '').slice(0, 100), true); }
+      this.disabled = false;
+    };
+
+    // 代币信息预览
+    $('tkAddr').onblur = async function () {
+      var a = this.value.trim();
+      if (!ethers.isAddress(a)) { $('tkInfo').textContent = ''; return; }
+      try {
+        var c = new ethers.Contract(a, [
+          'function symbol() view returns (string)',
+          'function decimals() view returns (uint8)',
+          'function balanceOf(address) view returns (uint256)'
+        ], new ethers.JsonRpcProvider(RPC, undefined, { staticNetwork: true }));
+        var sym = await c.symbol(), bal = await c.balanceOf(MS);
+        $('tkInfo').textContent = sym + ' · 多签持有 ' + ethers.formatEther(bal);
+      } catch (e) { $('tkInfo').textContent = '读取失败（地址可能不是 BEP20）'; }
+    };
+
+    // ── NFT 转移 ──
+    $('btnNft').onclick = async function () {
+      if (!signer) { toast('先连接钱包', true); return; }
+      var nf = $('nftAddr').value.trim(), id = $('nftId').value.trim(), to = $('nftTo').value.trim();
+      if (!ethers.isAddress(nf)) { toast('NFT 合约地址不合法', true); return; }
+      if (!ethers.isAddress(to)) { toast('收款地址不合法', true); return; }
+      if (!id) { toast('缺少 Token ID', true); return; }
+      this.disabled = true;
+      try {
+        var c = new ethers.Contract(nf, [
+          'function safeTransferFrom(address,address,uint256)'
+        ], signer);
+        var data = c.interface.encodeFunctionData('safeTransferFrom', [MS, to, id]);
+        var tx = await readSigner.submit(nf, 0, data, { gasLimit: 700000 });
+        toast('已提交，等待确认…');
+        await tx.wait();
+        toast('NFT 转移提案已创建，还需 1 位 owner 确认');
+        await refresh();
+      } catch (e) { toast('失败：' + (e.shortMessage || e.message || '').slice(0, 100), true); }
+      this.disabled = false;
+    };
+
+    // ── 任意调用 ──
+    $('btnRaw').onclick = async function () {
+      if (!signer) { toast('先连接钱包', true); return; }
+      var to = $('rawTo').value.trim(), val = $('rawValue').value.trim() || '0', data = $('rawData').value.trim();
+      if (!ethers.isAddress(to)) { toast('目标地址不合法', true); return; }
+      if (!/^0x[0-9a-fA-F]*$/.test(data)) { toast('Calldata 必须以 0x 开头', true); return; }
+      this.disabled = true;
+      try {
+        var tx = await readSigner.submit(to, ethers.parseEther(val), data, { gasLimit: 900000 });
+        toast('已提交，等待确认…');
+        await tx.wait();
+        toast('调用提案已创建，还需 1 位 owner 确认');
+        await refresh();
+      } catch (e) { toast('失败：' + (e.shortMessage || e.message || '').slice(0, 100), true); }
+      this.disabled = false;
+    };
+
+    $('btnReplace').onclick = async function () {
+      if (!signer) { toast('先连接钱包', true); return; }
+      var o = $('oldOwner').value.trim(), n = $('newOwner').value.trim();
+      if (!ethers.isAddress(o) || !ethers.isAddress(n)) { toast('地址不合法', true); return; }
+      this.disabled = true;
+      try {
+        var data = readSigner.interface.encodeFunctionData('replaceOwner', [o, n]);
+        var tx = await readSigner.submit(MS, 0, data, { gasLimit: 700000 });
+        toast('已提交，等待确认…');
+        await tx.wait();
+        toast('更换提案已创建，还需 1 位 owner 确认');
+        await refresh();
+      } catch (e) {
+        toast('失败：' + (e.shortMessage || e.message || '').slice(0, 100), true);
+      }
+      this.disabled = false;
+    };
+  }
+
+  // ── 启动 ──
+  initRead();
+  bindSubmit();
+  $('btnConnect').onclick = connect;
+  $('btnRefresh').onclick = function () { refresh(); };
+  refresh();
+
+  if (window.ethereum) {
+    window.ethereum.on && window.ethereum.on('accountsChanged', function () { location.reload(); });
+  } else {
+    showHelp();
+  }
+})();
+</script>
+</body>
+</html>

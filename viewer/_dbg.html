@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+body{background:#0a0d14;color:#c8d0de;font:13px ui-monospace,monospace;padding:20px;white-space:pre-wrap;word-break:break-all}
+</style></head><body id="o">running…</body>
+<script>
+var out = document.getElementById('o');
+function log(s) { out.textContent += '\n' + s; }
+out.textContent = 'start';
+
+function hexToStr(hex) {
+  hex = hex.replace(/^0x/, '');
+  var len = parseInt(hex.slice(64, 128), 16);
+  var body = hex.slice(128, 128 + len * 2);
+  var bytes = [];
+  for (var i = 0; i < body.length; i += 2) bytes.push(parseInt(body.substr(i, 2), 16));
+  try { return decodeURIComponent(escape(String.fromCharCode.apply(null, bytes))); }
+  catch (e) { return String.fromCharCode.apply(null, bytes); }
+}
+
+fetch('../nft/chain.json', { cache: 'no-store' })
+  .then(function (r) { log('chain.json HTTP ' + r.status); return r.json(); })
+  .then(function (cfg) {
+    log('rpc=' + cfg.rpc + '  nft=' + cfg.nft);
+    var data = '0xc87b56dd' + (1).toString(16).padStart(64, '0');
+    return fetch(cfg.rpc, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_call', params: [{ to: cfg.nft, data: data }, 'latest'] })
+    });
+  })
+  .then(function (r) { log('rpc HTTP ' + r.status); return r.json(); })
+  .then(function (j) {
+    if (j.error) { log('RPC ERROR ' + JSON.stringify(j.error)); return; }
+    log('result 长度 ' + (j.result ? j.result.length : 0));
+    var uri = hexToStr(j.result);
+    log('uri 前缀 ' + uri.slice(0, 50));
+    var json = JSON.parse(decodeURIComponent(escape(atob(uri.split(',')[1]))));
+    log('name ' + json.name);
+    log('traits ' + (json.attributes || []).map(function (a) { return a.trait_type + '=' + a.value; }).join(', '));
+    document.title = 'DONE';
+  })
+  .catch(function (e) { log('EXCEPTION ' + (e && (e.message || e))); document.title = 'ERR'; });
+</script>
+</body></html>

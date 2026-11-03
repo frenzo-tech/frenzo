@@ -1,0 +1,540 @@
+{
+  "me": {
+    "handle": "mud",
+    "address": "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+    "bio": "第 3 台矿机的主人。只加真好友。",
+    "power": 115.5,
+    "friends": 10,
+    "shares": 3,
+    "joined": 1793004382477
+  },
+  "friends": [
+    {
+      "handle": "zero",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2",
+      "power": 110.8,
+      "online": true,
+      "relation": "好友",
+      "lastSeen": 1793260711393
+    },
+    {
+      "handle": "nova",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3",
+      "power": 118.8,
+      "online": true,
+      "relation": "好友",
+      "lastSeen": 1793257000677
+    },
+    {
+      "handle": "kite",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa4",
+      "power": 120.8,
+      "online": false,
+      "relation": "好友",
+      "lastSeen": 1793256882421
+    },
+    {
+      "handle": "echo",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa5",
+      "power": 110.8,
+      "online": false,
+      "relation": "好友",
+      "lastSeen": 1793260131406
+    },
+    {
+      "handle": "arc",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa6",
+      "power": 111.4,
+      "online": false,
+      "relation": "已关注",
+      "lastSeen": 1793259517917
+    },
+    {
+      "handle": "flux",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa7",
+      "power": 119.7,
+      "online": true,
+      "relation": "已关注",
+      "lastSeen": 1793258639631
+    },
+    {
+      "handle": "orb",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8",
+      "power": 118.7,
+      "online": false,
+      "relation": "已关注",
+      "lastSeen": 1793259753878
+    },
+    {
+      "handle": "lumen",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa9",
+      "power": 117,
+      "online": true,
+      "relation": "已关注",
+      "lastSeen": 1793261799410
+    },
+    {
+      "handle": "pike",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "power": 110.9,
+      "online": false,
+      "relation": "互相关注",
+      "lastSeen": 1793257889883
+    },
+    {
+      "handle": "sage",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
+      "power": 121.3,
+      "online": false,
+      "relation": "互相关注",
+      "lastSeen": 1793261644383
+    },
+    {
+      "handle": "rift",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac",
+      "power": 113.3,
+      "online": true,
+      "relation": "互相关注",
+      "lastSeen": 1793259911668
+    },
+    {
+      "handle": "halo",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaad",
+      "power": 113.7,
+      "online": true,
+      "relation": "互相关注",
+      "lastSeen": 1793259993765
+    },
+    {
+      "handle": "dune",
+      "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaae",
+      "power": 119.3,
+      "online": true,
+      "relation": "互相关注",
+      "lastSeen": 1793262231832
+    }
+  ],
+  "groups": [
+    {
+      "id": "g1",
+      "name": "算力联盟",
+      "desc": "互加好友，一起冲榜",
+      "members": [
+        "mud",
+        "zero",
+        "nova",
+        "kite",
+        "echo",
+        "arc"
+      ],
+      "admin": "mud",
+      "messages": [
+        {
+          "from": "zero",
+          "text": "今天谁加满了 20 个好友",
+          "t": 1793256382477
+        },
+        {
+          "from": "nova",
+          "text": "我 18 个，还差两个",
+          "t": 1793256482477
+        },
+        {
+          "from": "kite",
+          "text": "拉我拉我",
+          "t": 1793256582477
+        },
+        {
+          "from": "mud",
+          "text": "都加了，别刷，会限流",
+          "t": 1793256682477
+        }
+      ]
+    },
+    {
+      "id": "g2",
+      "name": "份额猎手",
+      "desc": "专挑早期份额",
+      "members": [
+        "mud",
+        "echo",
+        "arc",
+        "flux",
+        "orb"
+      ],
+      "admin": "echo",
+      "messages": [
+        {
+          "from": "echo",
+          "text": "nova 的份额现在才 0.00025，还早",
+          "t": 1793258582477
+        },
+        {
+          "from": "arc",
+          "text": "等它好友涨到 20 再进",
+          "t": 1793258682477
+        },
+        {
+          "from": "flux",
+          "text": "我先买了两份",
+          "t": 1793258782477
+        }
+      ]
+    },
+    {
+      "id": "g3",
+      "name": "冷启动互助",
+      "desc": "新手村，互相加好友",
+      "members": [
+        "mud",
+        "pike",
+        "sage",
+        "rift",
+        "halo",
+        "dune"
+      ],
+      "admin": "pike",
+      "messages": [
+        {
+          "from": "pike",
+          "text": "新来的先加我，秒通过",
+          "t": 1793261582477
+        },
+        {
+          "from": "sage",
+          "text": "加了",
+          "t": 1793261682477
+        },
+        {
+          "from": "mud",
+          "text": "fff",
+          "t": 1793264303152
+        }
+      ]
+    }
+  ],
+  "messages": {
+    "zero": [
+      {
+        "from": "zero",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "zero",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      },
+      {
+        "from": "mud",
+        "text": "??????????????",
+        "t": 1793263699914
+      },
+      {
+        "from": "mud",
+        "text": "这条是真的写进数据库了",
+        "t": 1793263703834
+      }
+    ],
+    "nova": [
+      {
+        "from": "nova",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "nova",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "kite": [
+      {
+        "from": "kite",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "kite",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "echo": [
+      {
+        "from": "echo",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "echo",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "arc": [
+      {
+        "from": "arc",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "arc",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "flux": [
+      {
+        "from": "flux",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "flux",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "orb": [
+      {
+        "from": "orb",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "orb",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "lumen": [
+      {
+        "from": "lumen",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "lumen",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "pike": [
+      {
+        "from": "pike",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "pike",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "sage": [
+      {
+        "from": "sage",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "sage",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "rift": [
+      {
+        "from": "rift",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "rift",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "halo": [
+      {
+        "from": "halo",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "halo",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ],
+    "dune": [
+      {
+        "from": "dune",
+        "text": "你的算力涨得挺快",
+        "t": 1793258182477
+      },
+      {
+        "from": "mud",
+        "text": "加了几个好友，还行",
+        "t": 1793258282477
+      },
+      {
+        "from": "dune",
+        "text": "要不要一起开个群",
+        "t": 1793259982477
+      },
+      {
+        "from": "mud",
+        "text": "可以，晚点我建",
+        "t": 1793260082477
+      }
+    ]
+  },
+  "feed": [
+    {
+      "from": "echo",
+      "type": "mint",
+      "text": "铸造了第 5 台矿机",
+      "t": 1793262982477
+    },
+    {
+      "from": "nova",
+      "type": "friend",
+      "text": "和 kite 成为了好友",
+      "t": 1793262382477
+    },
+    {
+      "from": "arc",
+      "type": "share",
+      "text": "买入了 mud 的 2 份份额",
+      "t": 1793261782477
+    },
+    {
+      "from": "flux",
+      "type": "power",
+      "text": "算力突破 110",
+      "t": 1793261182477
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+# ── 密钥与本地状态：绝不入库 ──
+.testkey
+.testkey.*
+.mainnetkey
+testnet-wallets.json
+*.key
+*.pem
+.env
+.env.*
+deployment-*.json
+deployment*.backup.json
+_onchain-constants.json
+_ai_brief.json
+_chain-sync.json
+
+# ── 依赖与构建产物 ──
+node_modules/
+artifacts/
+cache/
+dist/
+*.flat.sol
+
+# ── 临时/参考目录 ──
+_ref/
+verify/
+_u_*/
+_u_*
+probe-*.html
+*-test.html
+journey-test.html
+
+# ── 截图与视频 ──
+*.png
+*.jpg
+*.mp4
+*.gif
+!assets/**/*.png
+!assets/**/*.jpg
+!nft-designs*.html
+
+# ── 日志与备份 ──
+*.log
+*.bak
+*.bak.*
+nft-out/
+twitter/
+
+_scripts-archive/
+
+# ԭʼ����Դ�ļ���̫�󣬲���⣻վ��ֻ���Ż��棩
+assets/mech-base.glb
+assets/s1.glb
+assets/s2.glb
+assets/s3.glb
+
+*.zip

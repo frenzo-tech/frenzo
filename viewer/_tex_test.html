@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">
+<style>html,body{margin:0;width:560px;height:700px;background:#06070a;overflow:hidden}</style>
+<script src="../vendor/model3d.js"></script>
+</head>
+<body>
+<canvas id="cv" width="560" height="700"></canvas>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var tex = q.get('tex') || 'light_violet';
+
+  var B = window.__FRENZO_3D__, THREE = B.THREE;
+  var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('cv'), antialias: true, alpha: false });
+  renderer.setSize(560, 700, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.95;
+  renderer.setClearColor(0x06070a, 1);
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color('#06070a');
+  var pmrem = new THREE.PMREMGenerator(renderer);
+  pmrem.compileEquirectangularShader();
+  scene.environment = pmrem.fromScene(new B.RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = 0.95;
+
+  var camera = new THREE.PerspectiveCamera(30, 560 / 700, 0.01, 200);
+  var key = new THREE.DirectionalLight(0xffffff, 2.6); key.position.set(2.4, 3.4, 2.8);
+  var rim = new THREE.DirectionalLight(0x7ad9ff, 2.8); rim.position.set(-3.2, 1.8, -2.4);
+  var fill = new THREE.DirectionalLight(0xc0aaff, 1.0); fill.position.set(-1.4, -1.2, 2.6);
+  scene.add(key, rim, fill);
+
+  var loader = new B.GLTFLoader();
+  loader.setMeshoptDecoder(B.MeshoptDecoder);
+
+  loader.load('../assets/mech-final.glb', function (gltf) {
+    var root = gltf.scene;
+    var group = new THREE.Group();
+    group.add(root);
+    scene.add(group);
+
+    var box = new THREE.Box3().setFromObject(root);
+    var size = box.getSize(new THREE.Vector3());
+    if (size.z > size.y * 1.3) root.rotation.x = -Math.PI / 2;
+
+    var ctr = new THREE.Box3().setFromObject(root).getCenter(new THREE.Vector3());
+    root.position.sub(ctr);
+    box = new THREE.Box3().setFromObject(root);
+    root.position.y -= box.min.y;
+    box = new THREE.Box3().setFromObject(root);
+    size = box.getSize(new THREE.Vector3());
+
+    var h = size.y;
+    camera.position.set(0, h * 0.60, h * 2.35);
+    camera.lookAt(0, h * 0.54, 0);
+    group.rotation.y = 0.35;
+
+    // 载入换色贴图
+    new THREE.TextureLoader().load('../assets/tex/variants/' + tex + '.webp', function (t) {
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.flipY = false;
+      t.needsUpdate = true;
+      root.traverse(function (o) {
+        if (o.isMesh && o.material) {
+          o.material.map = t;
+          o.material.needsUpdate = true;
+        }
+      });
+      renderer.render(scene, camera);
+      document.title = 'READY';
+      window.__ready = true;
+    }, undefined, function (e) {
+      document.title = 'TEXERR';
+    });
+  }, undefined, function (e) { document.title = 'ERR'; });
+})();
+</script>
+</body>
+</html>

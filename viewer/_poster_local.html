@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Poster</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;width:1024px;height:1024px;overflow:hidden;background:#06070a}
+  .stage{position:relative;width:1024px;height:1024px;overflow:hidden;
+    font-family:-apple-system,"Segoe UI",system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
+  .bg{position:absolute;inset:0;background:
+      radial-gradient(circle at 50% 30%, var(--glow) 0%, rgba(6,7,10,0) 62%),
+      linear-gradient(180deg,#0a0d15 0%, #05060a 100%)}
+  .grid{position:absolute;inset:0;opacity:.05;
+    background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);
+    background-size:64px 64px}
+  .ring{position:absolute;left:50%;top:46%;width:660px;height:660px;margin:-330px 0 0 -330px;
+    border-radius:50%;border:1px solid rgba(255,255,255,.07)}
+  .ring2{position:absolute;left:50%;top:46%;width:480px;height:480px;margin:-240px 0 0 -240px;
+    border-radius:50%;background:rgba(255,255,255,.028)}
+  #cv{position:absolute;left:0;top:0;width:1024px;height:1024px}
+  .top{position:absolute;left:44px;top:38px;display:flex;align-items:center;gap:14px}
+  .mark{width:44px;height:44px}
+  .brand{font-size:26px;font-weight:800;letter-spacing:.05em;
+    background:linear-gradient(100deg,#fff,#b9a6ff 52%,#5ce0ff);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .num{position:absolute;right:44px;top:44px;font:600 15px ui-monospace,Menlo,monospace;
+    color:#7d8798;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 18px;
+    background:rgba(255,255,255,.03)}
+  .bot{position:absolute;left:0;right:0;bottom:0;padding:0 44px 46px;
+    background:linear-gradient(180deg,rgba(6,7,10,0) 0%,rgba(6,7,10,.92) 24%,#05060a 56%)}
+  .nm{font-size:60px;font-weight:800;letter-spacing:-.01em;line-height:1;color:#fff}
+  .nm small{font-size:30px;font-weight:600;color:#8b94a6;margin-left:6px}
+  .sub{margin-top:10px;font:12px ui-monospace,Menlo,monospace;color:#6f7a8c;letter-spacing:.16em}
+  .chips{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}
+  .chip{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.045);
+    border-radius:9px;padding:9px 14px;font:10.5px ui-monospace,Menlo,monospace;color:#8b94a6}
+  .chip b{display:block;font-size:13px;color:#e8edf6;margin-top:3px;font-weight:600}
+  .acc{display:inline-flex;align-items:center;gap:7px}
+  .dot{width:8px;height:8px;border-radius:50%}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="bg" id="bg"></div>
+  <div class="grid"></div>
+  <div class="ring"></div><div class="ring2"></div>
+  <canvas id="cv" width="1024" height="1024"></canvas>
+
+  <div class="top">
+    <svg class="mark" viewBox="0 0 32 32">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#a08cff"/><stop offset="100%" stop-color="#5ce0ff"/></linearGradient></defs>
+      <path d="M16 2.6 28.2 9.3v13.4L16 29.4 3.8 22.7V9.3z" fill="none" stroke="url(#g)" stroke-width="1.9" stroke-linejoin="round"/>
+      <path d="M16 13.4 11.4 18.9M16 13.4 20.6 18.9M12.4 20.6h7.2" stroke="url(#g)" stroke-width="1.3" opacity=".8" stroke-linecap="round"/>
+      <circle cx="16" cy="10.6" r="2.7" fill="url(#g)"/>
+      <circle cx="10.2" cy="20.6" r="2.2" fill="#a08cff"/>
+      <circle cx="21.8" cy="20.6" r="2.2" fill="#5ce0ff"/>
+    </svg>
+    <div class="brand">FRENZO</div>
+  </div>
+
+  <div class="num" id="num">MINER #1</div>
+
+  <div class="bot">
+    <div class="nm" id="name">echo<small>.ai</small></div>
+    <div class="sub" id="sub">AGENT MINER · BSC</div>
+    <div class="chips" id="chips"></div>
+  </div>
+</div>
+
+<script src="../vendor/model3d.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var id = q.get('id') || '1';
+  var handle = q.get('h') || 'echo';
+  var gender = q.get('g') || 'Male';
+  var skin = q.get('sk') || 'Light';
+  var hair = q.get('hr') || 'Rose';
+  var outfit = q.get('of') || 'Violet';
+  var acc = q.get('ac') || 'Visor';
+  var glow = q.get('glow') || 'rgba(124,92,255,.35)';
+
+  document.getElementById('bg').style.setProperty('--glow', glow);
+  document.getElementById('num').textContent = 'MINER #' + id;
+  document.getElementById('name').innerHTML = handle + '<small>.ai</small>';
+  document.getElementById('sub').textContent = 'AGENT MINER · ' + gender.toUpperCase() + ' · BSC';
+
+  var ACC_HEX = {
+    Violet:'#8b6dff', Teal:'#1ec8b4', Coral:'#ff7a7a', Amber:'#ffab2e', Azure:'#4f8ef7', Orchid:'#c06bff'
+  };
+  var chips = [
+    ['GENDER', gender], ['SKIN', skin], ['HAIR', hair],
+    ['OUTFIT', outfit], ['ACCESSORY', acc]
+  ];
+  document.getElementById('chips').innerHTML = chips.map(function (c) {
+    var dot = c[0] === 'OUTFIT'
+      ? '<span class="acc"><span class="dot" style="background:' + (ACC_HEX[c[1]] || '#888') + '"></span></span>'
+      : '';
+    return '<div class="chip">' + c[0] + '<b>' + dot + c[1] + '</b></div>';
+  }).join('');
+
+  var B = window.__FRENZO_3D__;
+  var THREE = B.THREE;
+  var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('cv'), antialias: true, alpha: true });
+  renderer.setSize(1024, 1024, false);
+  renderer.setPixelRatio(1);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.95;
+  renderer.setClearColor(0x000000, 0);
+
+  var scene = new THREE.Scene();
+  var pmrem = new THREE.PMREMGenerator(renderer);
+  pmrem.compileEquirectangularShader();
+  scene.environment = pmrem.fromScene(new B.RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = 0.95;
+
+  var camera = new THREE.PerspectiveCamera(30, 1, 0.01, 200);
+  var key = new THREE.DirectionalLight(0xffffff, 2.6); key.position.set(2.4, 3.4, 2.8);
+  var rim = new THREE.DirectionalLight(0x7ad9ff, 2.8); rim.position.set(-3.2, 1.8, -2.4);
+  var fill = new THREE.DirectionalLight(0xc0aaff, 1.0); fill.position.set(-1.4, -1.2, 2.6);
+  scene.add(key, rim, fill);
+
+  var loader = new B.GLTFLoader();
+  loader.setMeshoptDecoder(B.MeshoptDecoder);
+
+  loader.load('../assets/mech-final.glb', function (gltf) {
+    var root = gltf.scene;
+    var group = new THREE.Group();
+    group.add(root);
+    scene.add(group);
+
+    var box = new THREE.Box3().setFromObject(root);
+    var size = box.getSize(new THREE.Vector3());
+    if (size.z > size.y * 1.3) root.rotation.x = -Math.PI / 2;
+
+    var ctr = new THREE.Box3().setFromObject(root).getCenter(new THREE.Vector3());
+    root.position.sub(ctr);
+    box = new THREE.Box3().setFromObject(root);
+    root.position.y -= box.min.y;
+    box = new THREE.Box3().setFromObject(root);
+    size = box.getSize(new THREE.Vector3());
+
+    // 竖构图：人物占上半 78%，留出底部文字区
+    var h = size.y;
+    camera.position.set(0, h * 0.66, h * 2.85);
+    camera.lookAt(0, h * 0.66, 0);
+    group.position.y = h * 0.04;
+    group.rotation.y = 0.38;
+
+    renderer.render(scene, camera);
+    window.__ready = true;
+    document.title = 'READY';
+  }, undefined, function (e) {
+    document.title = 'ERR ' + e;
+  });
+})();
+</script>
+</body>
+</html>

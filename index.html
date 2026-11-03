@@ -1031,14 +1031,90 @@ window.onerror = function (m, s, l, c) {
   // ── 载入数据 ──
   let MINERS = [], STATS = {}, TOTAL_POWER = 0, DAILY = 0;
 
+  // ── 数据源：优先读服务端快照，快照失败才回退到直连链 ──
+  // 目的：首页不再为「列表 + 榜单」发十几条 RPC，避免被公共节点限流
+  let SNAP = null;
+  let SNAP_AT = 0;
+
+  async function fetchSnapshot() {
+    try {
+      const r = await fetch('/api/project.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return null;
+      const j = await r.json();
+      if (j.network && String(j.network.chainId) !== String(cfg.chainId)) return null;
+      if (j.contracts && String(j.contracts.core).toLowerCase() !== String(cfg.core).toLowerCase()) return null;
+      return j;
+    } catch (e) { return null; }
+  }
+
+  // 用快照填充 MINERS / STATS（不发起任何链上请求）
+  function applySnapshot(j) {
+    STATS = {
+      count: j.mining.miners,
+      mined: j.token.totalMined,
+      max: j.token.maxSupply,
+      rps: j.token.emissionPerDay / 86400,
+      daily: j.token.emissionPerDay,
+      treasury: j.governance.treasury,
+      myToken: STATS.myToken || 0,
+      circ: STATS.circ || 0,
+      mintPrice: j.mining.mintPriceBnb,
+    };
+    const handles = {};
+    const items = (j.miners || []).map((m) => {
+      const name = String(m.handle || '').replace(/\.ai$/, '');
+      handles[m.id] = name;
+      const own = m.owner || '';
+      return {
+        id: m.id,
+        name: name || ('agent' + m.id),
+        owner: own,
+        friends: m.friends,
+        supply: m.keys,
+        power: Math.round(m.powerPct * 100),
+        price: m.keyPriceBnb,
+        isMine: !!(account && own && own.toLowerCase() === account.toLowerCase()),
+      };
+    });
+    window.__NAMES = handles;
+    MINERS = items.sort((x, y) => y.power - x.power);
+    TOTAL_POWER = MINERS.reduce((s, m) => s + m.power, 0) || 1;
+    DAILY = STATS.daily;
+  }
+
+  // 只补「我的」这部分（需要连钱包；未连接时不发请求）
+  async function loadMine() {
+    if (!account) return;
+    try {
+      const [myTok, sup] = await Promise.all([
+        token.balanceOf(account),
+        token.totalSupply(),
+      ]);
+      STATS.myToken = Number(ethers.formatEther(myTok));
+      STATS.circ = Number(ethers.formatEther(sup));
+    } catch (e) {}
+  }
+
   async function load() {
+    // 1. 先试快照（1 个 HTTP 请求，缓存 15 秒）
+    if (!SNAP || Date.now() - SNAP_AT > 15000) {
+      SNAP = await fetchSnapshot();
+      SNAP_AT = Date.now();
+    }
+    if (SNAP) {
+      applySnapshot(SNAP);
+      await loadMine();
+      return;
+    }
+
+    // 2. 快照不可用 → 回退直连链（原有逻辑）
     const [count, mined, maxS, rps, treas, myTok, sup] = await Promise.all([
       core.minerCount(),
       core.totalMined(),
       core.MAX_SUPPLY(),
       core.REWARD_PER_SEC(),
       core.treasury(),
-      token.balanceOf(me),
+      account ? token.balanceOf(account) : Promise.resolve(0n),
       token.totalSupply(),
     ]);
     STATS = {
@@ -1052,7 +1128,6 @@ window.onerror = function (m, s, l, c) {
       circ: Number(ethers.formatEther(sup)),
     };
 
-    // 全部从链上读：分页拉矿机 + 批量拉 handle
     const total = Number(count);
     const PAGE = 100;
     const handles = {};
@@ -1076,7 +1151,7 @@ window.onerror = function (m, s, l, c) {
           supply: Number(b.supplies[i]),
           power: Number(b.powers[i]),
           price: Number(ethers.formatEther(b.prices[i])),
-          isMine: b.owners[i].toLowerCase() === me.toLowerCase(),
+          isMine: account ? b.owners[i].toLowerCase() === account.toLowerCase() : false,
         });
       }
     }
@@ -1192,8 +1267,13 @@ window.onerror = function (m, s, l, c) {
     if (!el || feedBusy) return;
     feedBusy = true;
     try {
+      // 只在有矿机时才扫链；否则直接给出提示，省掉 6 个 RPC 请求
+      if (!MINERS.length) {
+        el.innerHTML = '<div class="feed-i">还没有矿机，暂无动态</div>';
+        return;
+      }
       const head = await provider.getBlockNumber();
-      const from = Math.max(0, head - 1600);
+      const from = Math.max(0, head - 400);
       const all = [];
       for (const name of FEED_EVENTS) {
         const fn = core.filters[name];
@@ -1205,7 +1285,7 @@ window.onerror = function (m, s, l, c) {
       }
       all.sort((x, y) => (y.blockNumber - x.blockNumber) || ((y.index || 0) - (x.index || 0)));
       const top = all.slice(0, 6);
-      if (!top.length) { el.innerHTML = '<div class="feed-i">最近 1600 个区块内还没有事件</div>'; return; }
+      if (!top.length) { el.innerHTML = '<div class="feed-i">最近 400 个区块内还没有事件</div>'; return; }
 
       let headBlock = null;
       const rows = [];
@@ -1258,6 +1338,20 @@ window.onerror = function (m, s, l, c) {
     }
     $('dwName').textContent = m.name + '.ai';
     $('dwHandle').textContent = (m.isMine ? T('我的矿机','My miner') + ' · ' : short(m.owner) + ' · ') + 'Miner #' + m.id;
+    // 抽屉打开时才补齐这一台的链上实时值（1 台 = 1~2 个请求，不影响首页）
+    (async () => {
+      try {
+        const info = await core.minerInfo(m.id);
+        const own = await nft.ownerOf(m.id).catch(() => m.owner);
+        m.friends = Number(info[1]);
+        m.supply = Number(info[2]);
+        m.power = Number(info[4]);
+        m.price = Number(ethers.formatEther(info[5]));
+        m.owner = own;
+        m.pending = Number(ethers.formatEther(info[6]));
+        if (typeof window.__redrawDrawer === 'function') window.__redrawDrawer(m);
+      } catch (e) {}
+    })();
     $('dwPrice').innerHTML = fmt(m.price, 5) + '<small>BNB</small>';
     $('dwPower').textContent = (Number(m.power) / 100).toFixed(2) + '%';
     $('dwFriends').textContent = m.friends;
@@ -1429,6 +1523,7 @@ window.onerror = function (m, s, l, c) {
       const mp = await core.mintPrice();
       $('mintBtn').textContent = T('铸造矿机','Mint') + ' · ' + ethers.formatEther(mp) + ' BNB';
     } catch {}
+    try { if (window.__fillDocPlaceholders) window.__fillDocPlaceholders(); } catch (e) {}
     const sub = $('sub');
     if (sub) sub.textContent = `chain ${cfg.chainId || 97} · core ${short(cfg.core)} · treasury ${short(STATS.treasury)}`;
   }
@@ -1515,6 +1610,7 @@ window.onerror = function (m, s, l, c) {
       b.classList.add('on');
       view = b.dataset.view;
       window.__setView(view);
+      try { if (window.__fillDocPlaceholders) window.__fillDocPlaceholders(); } catch (e) {}
       renderGrid(currentList());
     };
   });
@@ -3596,6 +3692,40 @@ owner3  0xebFb760700b6E4A7DafBbb5faCD8A68bA78ff925
     window.prompt('复制下面的指令发给你的 AI：', cmd);
   };
 
+  // ══════════════════════════════════════════════════════════════
+  // 文档占位符回填
+  //   之前 .replace(/${CORE()}/g, ...) 写成了正则字面量，
+  //   匹配的是 "${CORE()}" 这几个字符，{core} 从来没被替换过。
+  //   现在统一在页面加载后把 {core} {nft} {token} 换成真实地址。
+  // ══════════════════════════════════════════════════════════════
+  function fillDocPlaceholders() {
+    var cfg = window.__CFG;
+    if (!cfg || !cfg.core) return;
+    var handle = (window.__ELIG && window.__ELIG.handle) || "你的handle";
+    var pairs = [
+      ["\\{core\\}", cfg.core || ""],
+      ["\\{nft\\}", cfg.nft || ""],
+      ["\\{token\\}", cfg.token || ""],
+      ["\\$\\{CORE\\(\\)\\}", cfg.core || ""],
+      ["__CORE_ADDR__", cfg.core || ""],
+      ["__TOKEN_ADDR__", cfg.token || ""],
+      ["__NFT_ADDR__", cfg.nft || ""],
+      ["__CHAIN_ID__", String(cfg.chainId || 56)],
+      ["\\{your-handle\\}", handle]
+    ];
+    var changed = 0;
+    document.querySelectorAll("pre, .formula, code, td").forEach(function (el) {
+      if (el.children.length > 0) return;
+      var s = el.textContent, o = s;
+      pairs.forEach(function (kv) {
+        s = s.replace(new RegExp(kv[0], "g"), kv[1]);
+      });
+      if (s !== o) { el.textContent = s; changed++; }
+    });
+    if (changed) console.log("[frenzo] 回填占位符 " + changed + " 处");
+    return changed;
+  }
+  window.__fillDocPlaceholders = fillDocPlaceholders;
   // ── 生成指令（市场页操作 → 给 AI） ──
   function showCmd(title, code) {
     $('mc-title').textContent = title;
